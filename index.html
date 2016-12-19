@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LoDash</title>
+  <link rel="stylesheet" type="text/css" href="./styles/style.css">
+</head>
+<body>
+  <div id="app"></div>
+<script src="./vendor/lodash.min.js"></script>
+<script type="text/template" id="menu-template">
+  <div class="menu">
+    <span class="title"><%-title%></span>
+  </div>
+</script>
+
+<script type="text/template" id="menu-list-template">
+  <ul>
+    <% for (var item in items) { %>
+    <li><a href="#<%- item %>"><%- items[item] %></a></li>
+    <% }; %>
+  </ul>
+</script>
+
+<script type="text/javascript">
+  function Menu(options) {
+    var elem;
+
+    function getElem() {
+      if (!elem) render();
+      return elem;
+    }
+
+    function render() {
+      var html = options.template({
+        title: options.title
+      });
+
+      elem = document.createElement('div');
+      elem.innerHTML = html;
+      elem = elem.firstElementChild;
+
+      elem.onmousedown = function() {
+        return false;
+      }
+
+      elem.onclick = function(event) {
+        if (event.target.closest('.title')) {
+          toggle();
+        }
+
+        if (event.target.closest('a')) {
+          event.preventDefault();
+          select(event.target.closest('a'));
+        }
+      }
+    }
+
+    function select(link) {
+      alert(link.getAttribute('href').substring(1));
+    }
+
+    function renderItems() {
+      if (elem.querySelector('ul')) return;
+
+      var listHtml = options.listTemplate({
+        items: options.items
+      });
+      elem.insertAdjacentHTML("beforeEnd", listHtml);
+    }
+
+    function open() {
+      renderItems();
+      elem.classList.add('open');
+    };
+
+    function close() {
+      elem.classList.remove('open');
+    };
+
+    function toggle() {
+      if (elem.classList.contains('open')) close();
+      else open();
+    };
+
+    this.getElem = getElem;
+    this.toggle = toggle;
+    this.close = close;
+    this.open = open;
+  }
+
+  var menu = new Menu({
+    title: "Сладости",
+    // передаём также шаблоны
+    template: _.template(document.getElementById('menu-template').innerHTML),
+    listTemplate: _.template(document.getElementById('menu-list-template').innerHTML),
+    items: {
+      "cake": "Торт",
+      "donat": "Пончик",
+      "brownie": "Пирожное",
+      "chocolate": "Шоколадка",
+      "icecreem": "Мороженое"
+    }
+  });
+
+  document.body.appendChild(menu.getElem());
+</script>
+</body>
+</html>
